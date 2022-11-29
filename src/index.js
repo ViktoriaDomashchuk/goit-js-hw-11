@@ -58,7 +58,7 @@ function createMarkup(hits) {
         downloads,
       }) => {
         return `<div class="gallery__card">
-  <div class="gallery__card-size">
+  <div>
     <a class="gallery__link" href="${largeImageURL}">
       <img class="gallery__img" src="${webformatURL}" alt="${tags}" loading="lazy" />
     </a>
