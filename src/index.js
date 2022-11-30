@@ -12,50 +12,38 @@ const refs = {
 refs.form.addEventListener('submit', onSearchImg);
 refs.btn.addEventListener('click', onClickMoreImg);
 
-refs.btn.classList.add('is-hidden');
-
 const pixabayImg = new NewsApiService();
-const lastPage = 40;
 
-async function onSearchImg(e) {
+let gallery = new SimpleLightbox('.gallery a', {
+  captionDelay: 200,
+});
+
+let currentPage = 0;
+
+function onSearchImg(e) {
   e.preventDefault();
-  pixabayImg.query = e.currentTarget.elements.searchQuery.value.trim();
+  clearMarkup();
+  refs.btn.classList.add('is-hidden');
 
-  if (pixabayImg.query === '') {
-    return Notify.info('Please enter the query parameters.');
-  }
+  pixabayImg.query = e.currentTarget.elements.searchQuery.value.trim();
+  currentPage = 0;
 
   pixabayImg.resetPage();
-  try {
-    await pixabayImg.fetchImg().then(hits => {
-      clearMarkup();
-      createMarkup(hits);
-      refs.btn.classList.remove('is-hidden');
 
-      if (hits.length === 0) {
-        refs.btn.classList.add('is-hidden');
-      }
-
-      if (hits.length < lastPage) {
-        refs.btn.classList.add('is-hidden');
-      }
-    });
-  } catch (error) {
-    console.error(error);
+  if (!pixabayImg.query) {
+    Notify.info('Please enter the query parameters.');
+    return;
   }
-}
 
-function onClickMoreImg() {
-  pixabayImg.fetchImg().then(createMarkup);
+  fetchImg();
 }
 
 function clearMarkup() {
   refs.list.innerHTML = '';
 }
 
-function createMarkup(hits) {
-  console.log(hits);
-  const markup = hits
+function createMarkup(arr) {
+  return arr
     .map(
       ({
         webformatURL,
@@ -90,12 +78,47 @@ function createMarkup(hits) {
       }
     )
     .join('');
+}
 
-  refs.list.insertAdjacentHTML('beforeend', markup);
+function pushGallery(arr) {
+  refs.list.insertAdjacentHTML('beforeend', createMarkup(arr));
+}
 
-  const gallery = new SimpleLightbox('.gallery a', {
-    captionDelay: 200,
-  });
+function onClickMoreImg() {
+  fetchImg();
+}
 
-  gallery.refresh();
+async function fetchImg() {
+  try {
+    const data = await pixabayImg.fetchImg();
+
+    refs.btn.classList.remove('is-hidden');
+
+    pixabayImg.nextPage();
+
+    currentPage += data.hits.length;
+
+    if (currentPage === data.hits.length) {
+      Notify.success(`Hooray! We found ${data.totalHits} images.`);
+    }
+
+    if (!data.hits.length) {
+      return Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    }
+
+    pushGallery(data.hits);
+    gallery.refresh();
+
+    if (pixabayImg.page === Math.ceil(data.totalHits / pixabayImg.per_page)) {
+      refs.btn.classList.add('is-hidden');
+
+      Notify.info(
+        'We are sorry, but you have reached the end of search results.'
+      );
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
