@@ -14,15 +14,26 @@ export default class NewsApiService {
   }
 
   async fetchImg() {
-    const resp = await axios.get(
-      `${BASE_URL}?key=${KEY}&q=${this.searchQuery}&${parameters}&page=${this.page}&per_page=${this.per_page}`
-    );
+    try {
+      const resp = await axios.get(
+        `${BASE_URL}?key=${KEY}&q=${this.searchQuery}&${parameters}&page=${this.page}`
+      );
 
-    return resp.data;
-  }
+      const data = resp.data;
 
-  nextPage() {
-    this.page += 1;
+      if (data.total === 0) {
+        Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+      } else if (this.page === 1) {
+        Notify.success(`Hooray! We found ${data.total} images.`);
+      }
+
+      this.page += 1;
+      return data.hits;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   resetPage() {
