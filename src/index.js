@@ -15,25 +15,34 @@ refs.btn.addEventListener('click', onClickMoreImg);
 refs.btn.classList.add('is-hidden');
 
 const pixabayImg = new NewsApiService();
+const lastPage = 40;
 
-function onSearchImg(e) {
+async function onSearchImg(e) {
   e.preventDefault();
-  pixabayImg.query = e.currentTarget.elements.searchQuery.value;
+  pixabayImg.query = e.currentTarget.elements.searchQuery.value.trim();
 
   if (pixabayImg.query === '') {
     return Notify.info('Please enter the query parameters.');
   }
 
   pixabayImg.resetPage();
-  pixabayImg.fetchImg().then(hits => {
-    clearMarkup();
-    createMarkup(hits);
-    refs.btn.classList.remove('is-hidden');
+  try {
+    await pixabayImg.fetchImg().then(hits => {
+      clearMarkup();
+      createMarkup(hits);
+      refs.btn.classList.remove('is-hidden');
 
-    if (hits.length === 0) {
-      refs.btn.classList.add('is-hidden');
-    }
-  });
+      if (hits.length === 0) {
+        refs.btn.classList.add('is-hidden');
+      }
+
+      if (hits.length < lastPage) {
+        refs.btn.classList.add('is-hidden');
+      }
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function onClickMoreImg() {
