@@ -26,7 +26,7 @@ export default class NewsApiService {
           'Sorry, there are no images matching your search query. Please try again.'
         );
       } else if (this.page === 1) {
-        Notify.success(`Hooray! We found ${data.total} images.`);
+        Notify.success(`Hooray! We found ${data.totalHits} images.`);
       }
 
       this.page += 1;
