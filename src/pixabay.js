@@ -16,17 +16,17 @@ export default class ApiService {
   async fetchImg() {
     try {
       const resp = await axios.get(
-        `${BASE_URL}?key=${KEY}&q=${this.searchQuery}&${parameters}&page=${this.page}`
+        `${BASE_URL}?key=${KEY}&q=${this.searchQuery}&${parameters}&page=${this.page}&${this.per_page}`
       );
 
       const data = resp.data;
 
-      if (data.total === 0) {
+      if (this.page === 1) {
+        Notify.success(`Hooray! We found ${data.totalHits} images.`);
+      } else if (data.total === 0) {
         Notify.failure(
           'Sorry, there are no images matching your search query. Please try again.'
         );
-      } else if (this.page === 1) {
-        Notify.success(`Hooray! We found ${data.totalHits} images.`);
       }
 
       this.page += 1;
