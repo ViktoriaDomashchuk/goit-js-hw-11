@@ -1,7 +1,8 @@
 import { Notify } from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import NewsApiService from './pixabay';
+
+import ApiService from './pixabay';
 
 const refs = {
   form: document.querySelector('#search-form'),
@@ -13,7 +14,7 @@ refs.form.addEventListener('submit', onSearchImg);
 refs.btn.addEventListener('click', onLoadMore);
 refs.btn.classList.add('is-hidden');
 
-const pixabayImg = new NewsApiService();
+const pixabayImg = new ApiService();
 
 const maxPages = 40;
 

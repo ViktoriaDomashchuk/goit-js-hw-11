@@ -6,7 +6,7 @@ const BASE_URL = 'https://pixabay.com/api/';
 const parameters =
   'image_type=photo&orientation=horizontal&safesearch=true&per_page=40';
 
-export default class NewsApiService {
+export default class ApiService {
   constructor() {
     this.searchQuery = '';
     this.page = 1;
