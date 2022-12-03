@@ -30,7 +30,7 @@ export default class ApiService {
       }
 
       this.page += 1;
-      return data.hits;
+      return data;
     } catch (err) {
       console.log(err);
     }

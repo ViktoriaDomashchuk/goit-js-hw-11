@@ -17,6 +17,7 @@ refs.btn.classList.add('is-hidden');
 const pixabayImg = new ApiService();
 
 const maxImgOnpage = 40;
+let image = 1;
 
 async function onSearchImg(e) {
   e.preventDefault();
@@ -24,6 +25,8 @@ async function onSearchImg(e) {
   clearMarkup();
 
   pixabayImg.query = e.currentTarget.elements.searchQuery.value.trim();
+
+  image = 1;
 
   if (!pixabayImg.query) {
     Notify.info('Please enter the query parameters.');
@@ -35,11 +38,11 @@ async function onSearchImg(e) {
   pixabayImg.resetPage();
 
   try {
-    await pixabayImg.fetchImg().then(hits => {
+    await pixabayImg.fetchImg().then(data => {
       clearMarkup();
-      createMarkup(hits);
+      createMarkup(data);
 
-      if (hits.length === maxImgOnpage) {
+      if (data.hits.length === maxImgOnpage) {
         refs.btn.classList.remove('is-hidden');
       }
     });
@@ -50,15 +53,17 @@ async function onSearchImg(e) {
 
 async function onLoadMore() {
   try {
-    await pixabayImg.fetchImg().then(hits => {
-      createMarkup(hits);
+    await pixabayImg.fetchImg().then(data => {
+      createMarkup(data);
+      image += 1;
 
-      if (hits.length < maxImgOnpage) {
+      if (image === Math.floor(data.totalHits / maxImgOnpage)) {
         refs.btn.classList.add('is-hidden');
 
         Notify.warning(
           "We're sorry, but you've reached the end of search results."
         );
+        return;
       }
     });
   } catch (err) {
@@ -66,8 +71,8 @@ async function onLoadMore() {
   }
 }
 
-function createMarkup(arr) {
-  const markup = arr
+function createMarkup({ hits }) {
+  const markup = hits
     .map(
       ({
         webformatURL,
